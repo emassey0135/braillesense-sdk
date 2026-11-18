@@ -140,3 +140,17 @@ which `BrailleSettings` does as the app comes to the front and as the provider s
   the display shows, Backspace-1-3-4-6 or Backspace-2-3-5-6 the whole line.
 - **A new braille table** (the G chord, or Global Options) rewrites every open box in the new table,
   its text kept.
+
+## Choosing a file
+
+- **The device's apps choose files through the File Manager's picker**
+  (`com.selvashc.filemanager/com.selvashc.filemanager.picker.PickerActivity`), started by name with
+  `FLAG_ACTIVITY_NO_HISTORY`: `com.selvashc.ACTION_PICK_FILE`, `ACTION_SAVE_FILE`, `ACTION_PICK_FOLDER`
+  and `ACTION_PICK_ONE_FOLDER`, with the category `com.selvashc.category.FILE_TYPE_AND_NAME` for a
+  file. The folder to open in is the intent's data (a `file:` Uri, or the caller's own `content:` one
+  with a read grant); `exts` (the extensions, without dots, `*.*` for any), `focused_file` (a save's
+  name), `current_type` and `title` are extras. It answers with a path alone, the first of
+  `path_list` or `path`, so the device's apps read and write what is chosen through all-files access.
+  The SDK's `FilePicker` asks it as they do.
+- This was read from the built-in apps, not yet tried from another app: whether the picker is
+  exported to one is still to be seen on a device.

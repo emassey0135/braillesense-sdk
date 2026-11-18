@@ -160,6 +160,42 @@ The Orbit SDK (`dev.emassey0135.orbit.ui.OrbitUi`) has the same stack: `list`, `
 differs is the activity's wiring (a `BrailleSenseSession` here, an `OrbitSession` there) and each
 device's own extras.
 
+## Choosing a file or a folder
+
+`FilePicker` (`dev.emassey0135.braillesense.files`) asks the device's own File Manager to choose, as
+its built-in apps (the Notepad, the web browser) do: a file to open, where to save one, or a folder.
+Its picker works with the braille keys and reads itself as every other screen of the device does.
+
+```kotlin
+private val choose = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val file = FilePicker.picked(result.resultCode, result.data) ?: return@registerForActivityResult
+    thread { file.openInput(this).use { input -> … } }
+}
+
+FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = listOf("txt"))) { choose.launch(it) }
+```
+
+- **`FileRequest`**: `kind` (`OPEN_FILE`, `SAVE_FILE`, `OPEN_FOLDER`), `title`, `extensions` (without
+  their dots; opening lists only those, every file when there are none; saving offers them, or the
+  suggested name's own), `suggestedName` for a save, and `startIn`, the folder to open in
+  (`/storage/emulated/0/Documents` when none is given, as the Notepad opens it).
+- **`launch(request, start)`** builds the intent and starts it with `start`, and says whether it
+  started (false where the File Manager is not there or does not let the app in). Start it through
+  `launch`: the folder goes as a `file:` Uri, as the device's apps send it, which Android lets an
+  app send only while `launch` allows it. `intent(request)` is the intent alone, and
+  `isAvailable(context)` whether the File Manager is there.
+- **`picked(resultCode, data)`** is what was chosen, or null when the person cancelled: a
+  `PickedFile` with its `path`. `name` and `parent` give its name and folder, the folder to start the
+  next request in, and `openInput(context)` and `openOutput(context)` read and write it.
+- **The File Manager answers with a path alone**, never a Uri it grants. Outside the app's own
+  folders Android lets an app read only the files it made itself, and make files only in shared
+  folders such as Documents and Download, unless it holds all-files access
+  (`MANAGE_EXTERNAL_STORAGE`, which the device's own apps hold; the person allows it under Settings,
+  Apps, Special app access). An app that opens files the person brought to the device needs it.
+
+The Orbit SDK's `FilePicker` has the same shape, so an app asks both devices alike; Orbit's File
+Manager also grants a Uri, so no permission is needed there.
+
 ## Below the stack
 
 An app can work the frames and the display itself:
