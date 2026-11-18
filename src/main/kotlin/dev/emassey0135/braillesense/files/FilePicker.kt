@@ -19,7 +19,7 @@ import java.io.File
  * ```kotlin
  * private val choose = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
  *     val file = FilePicker.picked(result.resultCode, result.data) ?: return@registerForActivityResult
- *     thread { file.openInput(this).use { … } }
+ *     thread { file.openInput().use { … } }
  * }
  *
  * FilePicker.launch(FileRequest(PickKind.OPEN_FILE, extensions = listOf("txt"))) { choose.launch(it) }
@@ -30,8 +30,6 @@ import java.io.File
  * device's own apps hold), else Android lets the app see only files it made itself. Start it through
  * [launch], not on its own: the folder it opens in goes as a `file:` Uri, as the device's apps send
  * it, which Android refuses to send from an app unless [launch] lets it for that one start.
- *
- * The same shape as the Orbit SDK's `FilePicker`, so an app asks both devices alike.
  */
 public object FilePicker {
     /** The File Manager's package. */
@@ -108,7 +106,7 @@ public object FilePicker {
     /** What was chosen, from the answer's parts: the first of its list, else its path. */
     internal fun picked(path: String?, paths: List<String>?): PickedFile? {
         val chosen = paths?.firstOrNull { it.isNotBlank() } ?: path?.takeIf { it.isNotBlank() } ?: return null
-        return PickedFile(chosen, null)
+        return PickedFile(chosen)
     }
 
     /** [request] as the File Manager reads it, as the device's own apps put it. */

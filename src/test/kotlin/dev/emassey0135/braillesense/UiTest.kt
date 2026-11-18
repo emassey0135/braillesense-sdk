@@ -211,8 +211,8 @@ class UiTest {
         assertEquals("Deleted. Banana", last)
     }
 
-    @Test fun aRefusalIsSaidWithTheLineThatFollowsIt() {
-        ui.list("Fruit", { listOf(Item("a", "Apple", open = { ui.refused("Not ripe") })) })
+    @Test fun anAnnouncementIsSaidWithTheLineThatFollowsIt() {
+        ui.list("Fruit", { listOf(Item("a", "Apple", open = { ui.announce("Not ripe") })) })
         ui.press(Key.Enter)
         assertEquals("Not ripe. Apple", last)
     }

@@ -26,7 +26,7 @@ class MainActivity : Activity() {
             "Fruit",
             items = {
                 fruit.map { name ->
-                    Item(name, name, open = { ui.message(name) }, actions = listOf(Action("Delete", 'd', asks = true) { remove(name) }))
+                    Item(name, name, open = { ui.announce(name) }, actions = listOf(Action("Delete", 'd', asks = true) { remove(name) }))
                 }
             },
             actions = { listOf(Action("Add", 'a', asks = true) { add() }) },
