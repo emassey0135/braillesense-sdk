@@ -45,8 +45,8 @@ class FilePickerTest {
     }
 
     @Test fun theAnswerIsTheFirstOfItsListElseItsPath() {
-        assertEquals(PickedFile("/storage/emulated/0/a.json", null), FilePicker.picked("/storage/emulated/0/b.json", listOf("/storage/emulated/0/a.json")))
-        assertEquals(PickedFile("/storage/emulated/0/b.json", null), FilePicker.picked("/storage/emulated/0/b.json", null))
+        assertEquals(PickedFile("/storage/emulated/0/a.json"), FilePicker.picked("/storage/emulated/0/b.json", listOf("/storage/emulated/0/a.json")))
+        assertEquals(PickedFile("/storage/emulated/0/b.json"), FilePicker.picked("/storage/emulated/0/b.json", null))
         assertNull(FilePicker.picked("", emptyList()))
     }
 
@@ -55,7 +55,7 @@ class FilePickerTest {
     }
 
     @Test fun aPickedFileNamesItselfAndItsFolder() {
-        val file = PickedFile("/storage/emulated/0/Documents/tasks.csv", null)
+        val file = PickedFile("/storage/emulated/0/Documents/tasks.csv")
         assertEquals("tasks.csv", file.name)
         assertEquals("/storage/emulated/0/Documents", file.parent)
     }

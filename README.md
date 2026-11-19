@@ -10,8 +10,8 @@ It was worked out from the device, its manual and its built-in apps. HIMS did no
 not support it. The device's services are reached through interfaces written here to the device's
 own descriptors; none of HIMS' code is included.
 
-There is a sibling SDK for the Orbit Speak and Orbit Player with the same screen stack, so an app's
-screens can be written once for both (see [One app, two devices](#one-app-two-devices)).
+Everything in it follows the BrailleSense's own apps: nothing in its API is there for another
+device's sake (see [Beside the Orbit SDK](#beside-the-orbit-sdk)).
 
 ## What an app needs
 
@@ -121,8 +121,7 @@ said after the screen under it.
 | `form(title, fields)` | A dialog of `Field.Line`, `Field.Choice`, `Field.Check` and `Field.Text`, then OK and Cancel, said "… dialog" as it opens. Tab and Shift-Tab move between controls, each read in its role. Gives `FormValues` at OK (`text(key)`, `choice(key)`, `checked(key)`, which throw for a key no field has), or null. |
 | `refresh()` | Your data changed: screens that no longer `stand` close, and the screen in front is read again, the row in hand kept by its key. Nothing is said unless the person's own key asked for the change (a check box, folding), so a sync never cuts off what is being read. |
 | `land(key)` | You moved what is in hand yourself (a row made, a row gone to): a refresh that puts `key` in hand and says the line. |
-| `announce(text)`, `message(text)` | What you have to say of a change: said with the line that follows it, as one thing, and kept on the cells for the person's Message Display Time, since someone reading braille alone hears none of it. |
-| `refused(text)` | Something asked for that cannot be done here, and why. |
+| `announce(text)` | What you have to say of a change: said with the line that follows it, as one thing, and kept on the cells for the person's Message Display Time, since someone reading braille alone hears none of it. |
 | `batch { … }` | Pushes and closes that say nothing until the block ends; then only where the person ends up is said. |
 | `push`, `close`, `top`, `screens`, `onEmpty` | The stack itself. `onEmpty` is called as the last screen closes (Escape on the first): finish the activity. Exit (Space-Z) calls `onExit`, by default the same. |
 
@@ -150,15 +149,13 @@ x"…), in the device's English; pass your own for another language. A screen of
 (Space or Enter with a letter nothing took), `stands()` (closed at the next refresh when false) and
 `closed()`.
 
-## One app, two devices
+## Beside the Orbit SDK
 
-The Orbit SDK (`dev.emassey0135.orbit.ui.OrbitUi`) has the same stack: `list`, `menu`, `askLine`,
-`confirm`, `choose`, `form` and their `suspend` twins, `refresh`, `land`, `announce`, `message`,
-`refused`, `batch`, `launch`, `push`, `close`, `top`, `screens` and `onEmpty`, and the same `Item`
-(up to `title`), `Action`, `MenuItem` (up to `asks`), `Field`, `FormValues` and the common
-`UiWords`. Screens written against those build against either by changing the imports; what
-differs is the activity's wiring (a `BrailleSenseSession` here, an `OrbitSession` there) and each
-device's own extras.
+The Orbit SDK, for the Orbit Speak and Orbit Player, is built the same way from its own device.
+Where the two devices agree, the two stacks use the same names (`list`, `menu`, `askLine`,
+`confirm`, `choose`, `form`, `refresh`, `land`, `announce`, `Item`, `Action`, `MenuItem`, `Field`,
+`FormValues`), so an app for both reads alike; where they differ, each follows its own device, and
+neither is kept in step with the other.
 
 ## Choosing a file or a folder
 
@@ -169,7 +166,7 @@ Its picker works with the braille keys and reads itself as every other screen of
 ```kotlin
 private val choose = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
     val file = FilePicker.picked(result.resultCode, result.data) ?: return@registerForActivityResult
-    thread { file.openInput(this).use { input -> … } }
+    thread { file.openInput().use { input -> … } }
 }
 
 FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = listOf("txt"))) { choose.launch(it) }
@@ -186,15 +183,12 @@ FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = l
   `isAvailable(context)` whether the File Manager is there.
 - **`picked(resultCode, data)`** is what was chosen, or null when the person cancelled: a
   `PickedFile` with its `path`. `name` and `parent` give its name and folder, the folder to start the
-  next request in, and `openInput(context)` and `openOutput(context)` read and write it.
+  next request in, and `openInput()` and `openOutput()` read and write it.
 - **The File Manager answers with a path alone**, never a Uri it grants. Outside the app's own
   folders Android lets an app read only the files it made itself, and make files only in shared
   folders such as Documents and Download, unless it holds all-files access
   (`MANAGE_EXTERNAL_STORAGE`, which the device's own apps hold; the person allows it under Settings,
   Apps, Special app access). An app that opens files the person brought to the device needs it.
-
-The Orbit SDK's `FilePicker` has the same shape, so an app asks both devices alike; Orbit's File
-Manager also grants a Uri, so no permission is needed there.
 
 ## Below the stack
 

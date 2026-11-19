@@ -47,8 +47,7 @@ public abstract class Screen {
 
 /**
  * A row of a [BrailleSenseUi.list]: [key] names it across a refresh, so the row in hand stays where
- * it was. The parameters up to [title] are the Orbit SDK's `Item`'s too, in the same order, so a
- * screen written for one device builds on the other; those after it are this device's own.
+ * it was.
  */
 public class Item(
     /** What names the row across a refresh, so the row in hand stays on it. */
@@ -75,11 +74,6 @@ public class Item(
     public val toggle: (() -> Unit)? = null,
     /** Space-D on it. */
     public val delete: (() -> Unit)? = null,
-    /**
-     * Its name alone, without what [text] says after it. The device names no menu of a row's
-     * actions, so it is not used here; the Orbit SDK names a row's menu for it.
-     */
-    public val title: String? = null,
     /** What the cells show, where it is not what is said. */
     public val braille: String = text,
     /** What a first letter finds it by. */
@@ -106,8 +100,7 @@ public class Action(
 
 /**
  * An item of a menu: a submenu when it has [children], else one that gives [value] when chosen.
- * [letter] is the one it asks for, kept if no item before it took it. The parameters up to [asks]
- * are the Orbit SDK's `MenuItem`'s too.
+ * [letter] is the one it asks for, kept if no item before it took it.
  */
 public class MenuItem<out T>(
     /** What it is called. */
@@ -174,8 +167,7 @@ public class FormValues(
 
 /**
  * The words the layer says itself, in the device's own English: its buttons and prompt buttons, and
- * what a key that does nothing says. An app passes its own for another language. [ok], [cancel],
- * [yes], [no], [empty], [noRowStartsWith] and [nothingOnLetter] are the Orbit SDK's `UiWords`' too.
+ * what a key that does nothing says. An app passes its own for another language.
  */
 public data class UiWords(
     /** A form's button that confirms it. */

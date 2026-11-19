@@ -1,7 +1,5 @@
 package dev.emassey0135.braillesense.files
 
-import android.content.Context
-import android.net.Uri
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,8 +17,7 @@ public enum class PickKind {
 }
 
 /**
- * What to ask the device's File Manager for, through [FilePicker]. The same in the Orbit SDK
- * (`dev.emassey0135.orbit.files`), so an app asks both devices alike.
+ * What to ask the BrailleSense's File Manager for, through [FilePicker].
  */
 public data class FileRequest(
     /** Opening a file, saving one, or choosing a folder. */
@@ -51,19 +48,12 @@ public data class FileRequest(
 }
 
 /**
- * What the person chose: its absolute [path], and the [uri] the File Manager granted this app, where
- * it gives one. Read and write it with [openInput] and [openOutput], which use the [uri] where there
- * is one and the path otherwise.
+ * What the person chose: its absolute [path], which is all the File Manager answers with. Read and
+ * write it with [openInput] and [openOutput]; a file this app did not make needs all-files access.
  */
 public data class PickedFile(
     /** The file or folder chosen, as an absolute path. */
     val path: String,
-    /**
-     * A `content:` Uri for it that this app may read and write, where the File Manager grants one:
-     * Orbit's does, for a file and for a folder and everything in it; the BrailleSense's gives only
-     * the path, and this is null.
-     */
-    val uri: Uri?,
 ) {
     /** The last part of [path]: a file's name with its extension, or a folder's. */
     val name: String get() = path.trimEnd('/').substringAfterLast('/')
@@ -72,22 +62,19 @@ public data class PickedFile(
     val parent: String? get() = path.trimEnd('/').substringBeforeLast('/', "").ifEmpty { null }
 
     /**
-     * Opens the file chosen to read, through [uri] where there is one and the path otherwise. Call it
-     * off the main thread.
+     * Opens the file chosen to read. Call it off the main thread.
      *
      * @throws java.io.IOException if it cannot be read.
      */
-    public fun openInput(context: Context): InputStream =
-        uri?.let { context.contentResolver.openInputStream(it) } ?: File(path).inputStream()
+    public fun openInput(): InputStream = File(path).inputStream()
 
     /**
-     * Opens the file chosen to write, made if it is not there and emptied if it is, through [uri]
-     * where there is one and the path otherwise. Call it off the main thread.
+     * Opens the file chosen to write, made if it is not there and emptied if it is. Call it off the
+     * main thread.
      *
      * @throws java.io.IOException if it cannot be written.
      */
-    public fun openOutput(context: Context): OutputStream =
-        uri?.let { context.contentResolver.openOutputStream(it, "wt") } ?: File(path).outputStream()
+    public fun openOutput(): OutputStream = File(path).outputStream()
 }
 
 /** A name's extension without its dot, or null for a name without one (".profile" has none). */

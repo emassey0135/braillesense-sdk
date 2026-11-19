@@ -49,4 +49,4 @@ The device's service interfaces, under the vendor's descriptors.
 # Package dev.emassey0135.braillesense.files
 
 Choosing a file or a folder through the device's own File Manager (`FilePicker`, `FileRequest`,
-`PickedFile`): the same shape as the Orbit SDK's.
+`PickedFile`).

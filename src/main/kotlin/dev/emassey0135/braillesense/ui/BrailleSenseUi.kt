@@ -224,18 +224,6 @@ public class BrailleSenseUi(
         schedule()
     }
 
-    /** [announce]. */
-    public fun message(text: String): Unit = announce(text)
-
-    /**
-     * Something the person asked for that cannot be done here, and why ([text], where there is
-     * something to say), announced. The device's own apps sound no tone through the output service
-     * an app can reach, so nothing else marks it.
-     */
-    public fun refused(text: String?) {
-        if (text != null) announce(text)
-    }
-
     /**
      * Runs [block] at once on this thread, for an app with no coroutine library: each ask in it
      * waits for its answer, and it goes on on the main thread as the answer comes.
