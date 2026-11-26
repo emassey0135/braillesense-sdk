@@ -149,6 +149,31 @@ x"…), in the device's English; pass your own for another language. A screen of
 (Space or Enter with a letter nothing took), `stands()` (closed at the next refresh when false) and
 `closed()`.
 
+### A dialog of your own
+
+`form` keeps what the person makes of its fields and gives it all at OK. A dialog that has to
+answer as the person goes (a value refused and put back, a field that changes another, buttons of
+its own) subclasses `DialogFrame` instead, and its screen's `frame()` returns it. You keep every
+value; the frame asks for `controls` (and `focus`, the place of the one in hand) at every key and
+tells you what the person did, and you change what you hold:
+
+| | |
+|---|---|
+| `DialogControl.Line(key, label, box, hint)` | An edit box: `box` is a `TextBox` you keep while the dialog is open, of several lines where it is. `typed(line)` as its keys change it. |
+| `DialogControl.Choice(key, label, options, selected, finding)` | A combo box: Space and Backspace go round its options, a letter to the next one `finding` starts with. `chose(control, at)`. |
+| `DialogControl.ListBox(key, label, options, selected, finding)` | A control that is itself a list: Space-1 and Space-4 move in it, stopping at its ends. `chose(control, at)`, and Enter is `entered`. |
+| `DialogControl.Check(key, label, checked)` | A check box: Space, Backspace or Enter is `toggled(check)`. |
+| `DialogControl.Text(key, value)` | A line to read. |
+| `DialogControl.Button(key, label, letter, asks)` | Enter, a routing key or Space or Enter with its letter is `pressed(button)`. |
+
+Tab and Shift-Tab are `focusOn(at)`, going round. Enter in a line of one, a combo box or a list box
+is `entered(control)`, which presses whatever the dialog does with it and says whether it pressed
+anything (a combo box pressing nothing goes on to the next control). Space-4 in a line of one, which
+its box leaves, is `below(line)`, for what you offer at its cursor. `prompt` makes a question of
+buttons alone the device's prompt buttons, stepped with Space and Backspace. Escape is the screen's
+`back()`, so what closing the dialog does is yours. Each control is read in the device's role, with
+its label, its value and, in a combo box or a list box, "2/5".
+
 ## Beside the Orbit SDK
 
 The Orbit SDK, for the Orbit Speak and Orbit Player, is built the same way from its own device.
@@ -201,7 +226,7 @@ An app can work the frames and the display itself:
 | `output` | `HanOutputClient` (an `Output`): speech in the person's own voice settings and raw cells; `BrailleDisplay`: `say`, `silence`, `show` a `DisplayLine` in the person's table, panning with word wrap, `routed`, `selecting`, `cursorLine`. |
 | `braille` | `BrailleSettings`, the person's Global Options; `BrailleTables`, `Louis` and its `Translator`. |
 | `reading` | `deviceReading(DeviceLine, LineSettings, BrailleSigns)`: a control as the device reads it, its role's word and symbol (`ControlRole`), letter, hot key, sign and place, where the person's settings put them. |
-| `ui` | `Frame`s that take their keys and give what to say and show (`Rendered`): `ListFrame` of `Row`s, `MenuFrame` of `MenuEntry`s, `LineFrame`, `DialogFrame`; `Letters` and `DeviceLetters`; `Readings`; `Messages`. |
+| `ui` | `Frame`s that take their keys and give what to say and show (`Rendered`): `ListFrame` of `Row`s, `MenuFrame` of `MenuEntry`s, `LineFrame`, `DialogFrame` over `DialogControl`s an app keeps; `Letters` and `DeviceLetters`; `Readings`; `Messages`. |
 | `edit` | `TextBox` and `LineEditor`, an edit box held in cells as typed; `BoxEditing`, the stock box's keys and what it says for each; `CellEcho`, `EditWords`, `Clipboard`, `SystemClipboard`. |
 
 A list without the stack, drawn and said by the app itself:
