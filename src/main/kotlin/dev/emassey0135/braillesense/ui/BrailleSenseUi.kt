@@ -656,7 +656,7 @@ public class BrailleSenseUi(
     private inner class FormScreen(override val title: String, fields: List<Field>, done: (FormValues?) -> Unit) : Asking<FormValues>(done) {
         override val heading: String get() = dialogTitle(title)
 
-        private val dialog = DialogFrame("form:${System.identityHashCode(this)}", title, fields, translator, words, letters, readings) { values ->
+        private val dialog = FieldsDialog("form:${System.identityHashCode(this)}", fields, translator, words, letters, readings) { values ->
             finish(values)
         }
 

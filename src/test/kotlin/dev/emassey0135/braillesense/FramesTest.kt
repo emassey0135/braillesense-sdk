@@ -3,7 +3,10 @@ package dev.emassey0135.braillesense
 import dev.emassey0135.braillesense.input.Key
 import dev.emassey0135.braillesense.reading.ControlRole
 import dev.emassey0135.braillesense.reading.DeviceReading
+import dev.emassey0135.braillesense.edit.TextBox
 import dev.emassey0135.braillesense.ui.DeviceLetters
+import dev.emassey0135.braillesense.ui.DialogControl
+import dev.emassey0135.braillesense.ui.DialogFrame
 import dev.emassey0135.braillesense.ui.Letters
 import dev.emassey0135.braillesense.ui.ListFrame
 import dev.emassey0135.braillesense.ui.MenuEntry
@@ -279,4 +282,97 @@ class FramesTest {
 
     @Test fun aMenuItemKeepsTheLetterItAsksForUnlessTakenThenItsNamesFirstFree() =
         assertEquals(listOf('n', 'e', 'o'), DeviceLetters.shortcuts(listOf("New" to 'n', "Next" to 'n', "None" to null)))
+
+    /**
+     * An app's own dialog: it keeps every value, hears each thing done, and may refuse one, which then
+     * stays as the app holds it.
+     */
+    private class Kept(val prompting: Boolean = false) : DialogFrame("kept", BY_LETTER, READ) {
+        val heard = mutableListOf<String>()
+        val name = TextBox("fig", Plain)
+        var size = 0
+        var ripe = false
+        var where = -1
+        var at = 0
+
+        /** The sizes the app takes: it refuses the third. */
+        val sizes = listOf("Small", "Large", "Huge")
+
+        override val prompt: Boolean get() = prompting
+
+        override val controls: List<DialogControl>
+            get() = if (prompting) listOf(DialogControl.Text("q", "Delete it?"), DialogControl.Button("no", "No"), DialogControl.Button("yes", "Yes")) else listOf(
+                DialogControl.Line("name", "Name", name),
+                DialogControl.Choice("size", "Size", sizes, size),
+                DialogControl.ListBox("where", "Where", listOf("Home", "Office", "Garden"), where),
+                DialogControl.Check("ripe", "Ripe", ripe),
+                DialogControl.Button("save", "Save", 's'),
+            )
+
+        override val focus: Int get() = at
+
+        override fun focusOn(at: Int) {
+            heard += "focus $at"
+            this.at = at
+        }
+
+        override fun typed(line: DialogControl.Line) {
+            heard += "typed ${line.box.text}"
+        }
+
+        override fun chose(control: DialogControl, at: Int) {
+            heard += "chose ${control.key} $at"
+            if (control.key == "size" && at < 2) size = at
+            if (control.key == "where") where = at
+        }
+
+        override fun toggled(check: DialogControl.Check) {
+            ripe = !check.checked
+        }
+
+        override fun pressed(button: DialogControl.Button) {
+            heard += "pressed ${button.key}"
+        }
+
+        override fun entered(control: DialogControl): Boolean = true.also { heard += "entered ${control.key}" }
+    }
+
+    @Test fun anAppsDialogHearsEachThingDoneAndAValueItRefusesStaysAsItHoldsIt() {
+        val frame = Kept()
+        assertEquals("Name: fig", frame.rendered.speech)
+        frame.key(Key.Tab)
+        assertEquals("Size: Small", frame.rendered.speech)
+        frame.key(Key.Space)
+        assertEquals("Size: Large", frame.rendered.speech)
+        frame.key(Key.Space)
+        assertEquals("refused by the app, it stays", "Size: Large", frame.rendered.speech)
+        frame.key(Key.Enter)
+        assertEquals(listOf("focus 1", "chose size 1", "chose size 2", "entered size"), frame.heard)
+    }
+
+    @Test fun anAppsListBoxMovesInPlaceStoppingAtItsEndsAndTabAloneLeavesIt() {
+        val frame = Kept()
+        frame.at = 2
+        frame.key(Key.Down)
+        assertEquals("with none held, the first", "Where: Home", frame.rendered.speech)
+        frame.key(Key.Last)
+        frame.key(Key.Down)
+        assertEquals("Where: Garden", frame.rendered.speech)
+        frame.key(Key.Typed("o"))
+        assertEquals("Where: Office", frame.rendered.speech)
+        frame.key(Key.Tab)
+        frame.key(Key.Space)
+        assertTrue(frame.ripe)
+        assertTrue("its letter presses it from anywhere", frame.pressLetter('s'))
+        assertEquals("pressed save", frame.heard.last())
+    }
+
+    @Test fun anAppsQuestionOfAnswersAloneStepsThemWithSpaceAsTheDevicesPromptButtons() {
+        val frame = Kept(prompting = true)
+        frame.at = 1
+        frame.key(Key.Space)
+        assertEquals(2, frame.at)
+        frame.key(Key.Space)
+        assertEquals("round, never onto what it asks", 1, frame.at)
+    }
 }
