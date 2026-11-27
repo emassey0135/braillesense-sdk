@@ -38,6 +38,9 @@ public class BrailleSenseSession(
 ) {
     /** The application's context, which the session's services are reached through. */
     public val context: Context = activity.applicationContext
+
+    /** Whether keys are logged as they come and as decoded (`input.KEY_TAG`): in a debuggable build only. */
+    private val logsKeys = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
     private val main = Handler(Looper.getMainLooper())
 
     /** The person's Global Options, read again as the app comes to the front and as they change. */
@@ -103,7 +106,9 @@ public class BrailleSenseSession(
     private val keys = KeyDelivery<Key>(claim, { main.post(it) }) { onKey(it) }
 
     private val input = HanInputClient(context) { code, value, data ->
-        keys.deliver(Chords.decode(code, value, data, settings.eightDot, settings.doubleTapRoutes))
+        val key = Chords.decode(code, value, data, settings.eightDot, settings.doubleTapRoutes)
+        if (logsKeys) android.util.Log.d(dev.emassey0135.braillesense.input.KEY_TAG, "decoded $key")
+        keys.deliver(key)
     }
 
     private val changed = object : ContentObserver(main) {
@@ -158,6 +163,7 @@ public class BrailleSenseSession(
      * swallowed. False for what the activity should hand to `super`.
      */
     public fun keyEvent(event: KeyEvent): Boolean {
+        if (logsKeys) android.util.Log.d(dev.emassey0135.braillesense.input.KEY_TAG, "key event code=${event.keyCode} scan=${event.scanCode} device=${event.deviceId} action=${event.action} repeat=${event.repeatCount}")
         if (!claim.holding) return false
         if (event.deviceId == -1 && event.scanCode != 0) return true
         val key = when (event.action) {
