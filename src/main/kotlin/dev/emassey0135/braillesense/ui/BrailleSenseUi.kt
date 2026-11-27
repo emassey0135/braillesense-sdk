@@ -697,6 +697,7 @@ public class BrailleSenseUi(
             session.beforeSettings = ui::settle
             session.onTableChanged = ui::retable
             session.onSettingsChanged = ui::redraw
+            session.onMeasured = ui::redraw
             return ui
         }
     }

@@ -75,6 +75,16 @@ public class BrailleSenseSession(
     /** Global Options changed while the app was in front (some have a hot key that works there): draw the line again. */
     public var onSettingsChanged: () -> Unit = {}
 
+    /**
+     * The display turned out not to be the 40 cells laid out until it was measured (a 32- or 20-cell
+     * one): draw the line again, at its width.
+     */
+    public var onMeasured: () -> Unit = {}
+
+    init {
+        output.measured = { main.post { if (claim.holding) onMeasured() } }
+    }
+
     /** Whether the keys and display are the app's: resumed and focused, and nothing drawn over it. */
     public val claim: Claim = Claim(
         take = {

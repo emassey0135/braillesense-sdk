@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Coming to the front from the background, as the Schedule Manager does, once the person
+         allows it on Android's "Display over other apps" page, and waking the device for it
+         (`Foreground`). -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- The services the device's own apps use: the speech and cell output, and the settings
          provider that holds the person's braille table and Global Options, and the File Manager

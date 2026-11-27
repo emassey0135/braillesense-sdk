@@ -57,6 +57,9 @@ public class HanOutputClient(
     @Volatile override var width: Int = 0
         private set
 
+    /** Called on the service's worker once the display has been measured and is not the 40 cells laid out until then: lay the line out again. */
+    public var measured: () -> Unit = {}
+
     private val link = ServiceLink(
         context,
         Intent("com.jawon.han.output.ACTION_HAN_OUTPUT")
@@ -92,6 +95,7 @@ public class HanOutputClient(
         }
         width = if (lines > 0) probe / lines else 40
         Log.i(tag, "display is $width cells, $lines lines")
+        if (width != 40) measured()
     }
 
     /** Binds the device's output service, from `onCreate`. */

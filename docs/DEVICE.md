@@ -154,3 +154,13 @@ which `BrailleSettings` does as the app comes to the front and as the provider s
   The SDK's `FilePicker` asks it as they do.
 - This was read from the built-in apps, not yet tried from another app: whether the picker is
   exported to one is still to be seen on a device.
+
+## Notifications and alarms
+
+- **A notification only sounds and vibrates**: the device reads it once the person opens its
+  notification list (its own listener, `com.selvashc.systemui`'s `HanNotificationListenerService`,
+  holds them), not as it arrives.
+- **The Schedule Manager (`com.selvashc.organizer.planner`) rings by coming to the front**: its
+  `ReminderAlertReceiver` opens its own screen over whatever is shown. It may, without root, because
+  it holds `SYSTEM_ALERT_WINDOW` (display over other apps), which on Android 15 lets an app in the
+  background start an activity. The SDK's `Foreground` does the same once the person allows it.

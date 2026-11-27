@@ -19,6 +19,10 @@ device's sake (see [Beside the Orbit SDK](#beside-the-orbit-sdk)).
   such a package, by its name alone, and the launcher lists such apps in its Programs menu. Under
   any other name an app gets no braille keys.
 - **Android 15, arm64**: every BrailleSense 7. The library's `minSdk` is 28.
+- **One APK for every display.** The SDK measures how many cells the display has as it takes the
+  output (a long line wrapped by the device's service and its lines counted, `BrailleDisplay.cellsWide`)
+  and pans to fit, so nothing is built per model; until the service answers it lays out 40. Measured
+  on a 40-cell unit; a 32-cell (H732B) or 20-cell one is still to be tried.
 - **The Android NDK**, to build liblouis. The library's `build-louis.sh` downloads liblouis' release,
   checks its hash and builds `libbraillesense-louis.so` with the NDK's clang, and gathers its tables
   into the library's assets; Gradle runs it before each build, and your APK merges both. It finds
@@ -214,6 +218,34 @@ FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = l
   folders such as Documents and Download, unless it holds all-files access
   (`MANAGE_EXTERNAL_STORAGE`, which the device's own apps hold; the person allows it under Settings,
   Apps, Special app access). An app that opens files the person brought to the device needs it.
+
+## Coming to the front
+
+A notification on this device only sounds and vibrates: it is read once the person opens the
+notification list. The Schedule Manager rings by opening itself over whatever is shown, and
+`Foreground` (`dev.emassey0135.braillesense.session`) does the same for an app's own activity, for
+what cannot wait until the person next opens the app, such as a reminder going off:
+
+```kotlin
+// As the reminder goes off, beside its notification:
+if (!Foreground.open(context, MainActivity::class.java, mapOf("reminder" to id))) {
+    // Not allowed: the notification is all the person gets until they allow it.
+}
+```
+
+- **`allowed(context)`** is whether the app may come to the front: Android starts no activity for an
+  app in the background unless it may display over other apps (`SYSTEM_ALERT_WINDOW`, which the
+  Schedule Manager holds). The SDK declares the permission; the person allows it on Android's
+  "Display over other apps" page, which **`openSettings(context)`** opens: the app's own page where
+  Android lets another app open it, else the list of every app. No root is needed.
+- **`open(context, activity, extras)`** wakes the device and starts the activity in front, `extras`
+  its intent's string extras (a `singleTask` activity already running gets them in `onNewIntent`);
+  false where it is not allowed.
+- **`wake(context)`** wakes the device for a moment, from its deeper sleep too, and lets it sleep
+  again by its own timeout.
+
+Say what comes to the front as the device's own dialogs are (`DialogFrame`), its buttons with their
+letters, and let it ring no more than its notification did.
 
 ## Below the stack
 
