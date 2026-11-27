@@ -236,7 +236,8 @@ if (!Foreground.open(context, MainActivity::class.java, mapOf("reminder" to id))
 - **`allowed(context)`** is whether the app may come to the front: Android starts no activity for an
   app in the background unless it may display over other apps (`SYSTEM_ALERT_WINDOW`, which the
   Schedule Manager holds). The SDK declares the permission; the person allows it on Android's
-  "Display over other apps" page, which **`settings(context)`** opens. No root is needed.
+  "Display over other apps" page, which **`openSettings(context)`** opens: the app's own page where
+  Android lets another app open it, else the list of every app. No root is needed.
 - **`open(context, activity, extras)`** wakes the device and starts the activity in front, `extras`
   its intent's string extras (a `singleTask` activity already running gets them in `onNewIntent`);
   false where it is not allowed.

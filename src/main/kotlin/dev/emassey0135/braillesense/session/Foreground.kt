@@ -22,10 +22,22 @@ public object Foreground {
     /** Whether the app may come to the front from the background: "Display over other apps" allowed. */
     public fun allowed(context: Context): Boolean = Settings.canDrawOverlays(context)
 
-    /** Android's page where the person allows the app to display over other apps, and so to come to the front. */
-    public fun settings(context: Context): Intent =
-        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    /**
+     * Opens Android's page where the person allows the app to display over other apps, and so to come
+     * to the front: the app's own page where Android lets another app open it, else the list of every
+     * app, where the person finds this one (Android 11 and later open the list for the public action
+     * whatever app it names). Whether one opened.
+     */
+    public fun openSettings(context: Context): Boolean {
+        val app = Uri.parse("package:${context.packageName}")
+        return listOf(
+            Intent(MANAGE_APP_OVERLAY, app),
+            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, app),
+        ).any { intent -> runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess }
+    }
+
+    /** The settings action of one app's own "Display over other apps" page, which Android does not publish. */
+    private const val MANAGE_APP_OVERLAY = "android.settings.MANAGE_APP_OVERLAY_PERMISSION"
 
     /**
      * Wakes the device and starts [activity], which must be this app's, in front, with [extras] as
