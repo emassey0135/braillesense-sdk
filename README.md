@@ -219,33 +219,51 @@ FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = l
   (`MANAGE_EXTERNAL_STORAGE`, which the device's own apps hold; the person allows it under Settings,
   Apps, Special app access). An app that opens files the person brought to the device needs it.
 
-## Coming to the front
+## Alarms, reminders and notifications
 
-A notification on this device only sounds and vibrates: it is read once the person opens the
-notification list. The Schedule Manager rings by opening itself over whatever is shown, and
-`Foreground` (`dev.emassey0135.braillesense.session`) does the same for an app's own activity, for
-what cannot wait until the person next opens the app, such as a reminder going off:
+An app that tells the person something at a time (an alarm, a reminder) has three things to get
+past on this device, and the SDK has a piece for each.
+
+1. **Android must let the alarm go off.** The BrailleSense runs MediaTek's DuraSpeed, which
+   restricts every app not switched on in its own list; Android then holds the app's alarms back
+   until it is opened, so nothing goes off. `Background.restricted(context)` says whether it is so,
+   and `Background.openSettings(context)` opens the app's own battery page, where Run in Background
+   allows it (DuraSpeed's own list is not open to other apps). Ask once, as the app first finds
+   itself restricted, where the person hears it, then say it where the app's settings are.
+2. **A notification is posted as on any phone**, on a channel of the app's own, with its buttons. On
+   this device it only sounds and vibrates: the device reads it once the person opens the
+   notification list.
+3. **So it comes to the front and is said there**, as the Schedule Manager rings.
+   `Foreground.open(context, activity, extras)` wakes the device and starts the app's activity over
+   whatever is shown, which Android allows only an app that may display over other apps:
+   `Foreground.allowed(context)` says whether it may, and `Foreground.openSettings(context)` opens
+   where the person allows it, the app's own page where Android lets it, else the list of every
+   app. No root is needed. Say it as a `DialogFrame`: its message as a `Text`, then its buttons with
+   their letters, and let it ring no more than its notification did. Once it is dealt with (or
+   Escape pressed on it), go back to where the person was with `Foreground.returnToPrevious(activity)`,
+   but only when `Foreground.openedFromBackground(intent)` says the app came to the front for it, and
+   not where a button carries on in the app.
 
 ```kotlin
-// As the reminder goes off, beside its notification:
-if (!Foreground.open(context, MainActivity::class.java, mapOf("reminder" to id))) {
-    // Not allowed: the notification is all the person gets until they allow it.
+// As the alarm goes off, beside its notification:
+notificationManager.notify(id, notification)
+if (!Foreground.open(context, MainActivity::class.java, mapOf("alarm" to id))) {
+    // Not allowed to come to the front: the notification is all the person gets.
 }
+
+// In the activity, from onCreate and onNewIntent:
+val cameForIt = Foreground.openedFromBackground(intent)
+Foreground.heard(intent)
+// … show the alarm's dialog; once it is dealt with:
+if (cameForIt) Foreground.returnToPrevious(this)
 ```
 
-- **`allowed(context)`** is whether the app may come to the front: Android starts no activity for an
-  app in the background unless it may display over other apps (`SYSTEM_ALERT_WINDOW`, which the
-  Schedule Manager holds). The SDK declares the permission; the person allows it on Android's
-  "Display over other apps" page, which **`openSettings(context)`** opens: the app's own page where
-  Android lets another app open it, else the list of every app. No root is needed.
-- **`open(context, activity, extras)`** wakes the device and starts the activity in front, `extras`
-  its intent's string extras (a `singleTask` activity already running gets them in `onNewIntent`);
-  false where it is not allowed.
-- **`wake(context)`** wakes the device for a moment, from its deeper sleep too, and lets it sleep
-  again by its own timeout.
-
-Say what comes to the front as the device's own dialogs are (`DialogFrame`), its buttons with their
-letters, and let it ring no more than its notification did.
+- **`Foreground.open`** is false, starting nothing, where the app may not come to the front; a
+  `singleTask` activity already running gets the extras in `onNewIntent`. **`wake`** wakes the device
+  alone, for a moment, from its deeper sleep too.
+- **`openedFromBackground(intent)`** is whether `open` started this intent; **`heard(intent)`** takes
+  the mark out once read, so the activity made again does not go back of itself.
+- **`returnToPrevious(activity)`** puts the app's task behind whatever was in front, its state kept.
 
 ## Below the stack
 

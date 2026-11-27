@@ -166,3 +166,8 @@ which `BrailleSettings` does as the app comes to the front and as the provider s
   `ReminderAlertReceiver` opens its own screen over whatever is shown. It may, without root, because
   it holds `SYSTEM_ALERT_WINDOW` (display over other apps), which on Android 15 lets an app in the
   background start an activity. The SDK's `Foreground` does the same once the person allows it.
+- **DuraSpeed (`com.mediatek.duraspeed`) restricts every app not switched on in its list**: Android
+  then reports the app as background restricted and holds its alarms under "Pending user blocked
+  background alarms" until it is opened. Its list (`DuraSpeedMainActivity`) is not exported, so no
+  other app opens it; the app's own battery page (`android.settings.VIEW_ADVANCED_POWER_USAGE_DETAIL`,
+  its Run in Background) is where the person allows it. Whether DuraSpeed keeps that is still to be seen.
