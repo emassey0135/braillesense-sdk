@@ -49,8 +49,31 @@ public object Foreground {
         wake(context)
         val intent = Intent(context, activity).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         extras.forEach { (key, value) -> intent.putExtra(key, value) }
+        intent.putExtra(FROM_BACKGROUND, true)
         return runCatching { context.startActivity(intent) }.isSuccess
     }
+
+    /**
+     * Whether [intent] is one [open] started: the app came to the front over whatever the person was
+     * in, and goes back to it ([returnToPrevious]) once what it came for is dealt with. False where
+     * the app was opened as usual, or was in front already.
+     */
+    public fun openedFromBackground(intent: Intent?): Boolean = intent?.getBooleanExtra(FROM_BACKGROUND, false) == true
+
+    /** Takes the mark of [open] out of [intent] once heard, so the activity made again does not go back of itself. */
+    public fun heard(intent: Intent?) {
+        intent?.removeExtra(FROM_BACKGROUND)
+    }
+
+    /**
+     * Goes back to whatever was in front before the app came to the front, once what it came for is
+     * dealt with: the app's task goes behind, its state kept.
+     */
+    public fun returnToPrevious(activity: Activity) {
+        activity.moveTaskToBack(true)
+    }
+
+    private const val FROM_BACKGROUND = "dev.emassey0135.braillesense.FROM_BACKGROUND"
 
     /**
      * Wakes the device from sleep for a moment and lets it sleep again by its own timeout: its speech
