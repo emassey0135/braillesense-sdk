@@ -60,11 +60,12 @@ class ChordsTest {
     @Test fun spaceWithBothLowerDotsSilences() =
         assertEquals(Key.Silence, Chords.fromChord(SPACE or DOT7 or DOT8))
 
-    @Test fun theScrollKeysPan() {
-        assertEquals(Key.ScrollBack, Chords.fromChord(Chords.SCROLL_UP))
-        assertEquals(Key.ScrollOn, Chords.fromChord(Chords.SCROLL_DOWN))
-        assertEquals(Key.ScrollBack, Chords.fromChord(Chords.SCROLL_UP_LONG))
-        assertEquals(Key.ScrollOn, Chords.fromChord(Chords.SCROLL_DOWN_LONG))
+    @Test fun eachPairsUpperScrollKeyPansBackAndItsLowerOneOnAsTheDeviceSendsThem() {
+        // The codes as a BrailleSense 7 sent them, pressed left upper, left lower, right upper, right lower.
+        assertEquals(Key.ScrollBack, Chords.fromChord(0x00400000))
+        assertEquals(Key.ScrollOn, Chords.fromChord(0x01000000))
+        assertEquals(Key.ScrollBack, Chords.fromChord(0x00800000))
+        assertEquals(Key.ScrollOn, Chords.fromChord(0x02000000))
     }
 
     @Test fun theFunctionKeysAreMenuTabAndEscape() {

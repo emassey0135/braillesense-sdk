@@ -290,6 +290,9 @@ On a device:
   the chord as `Chords` has its bits (Space is `0x2000`, dot 1 `0x1000`…).
 - **See what was said and shown**: `BrailleSenseSession(activity, version, trace = true, tag = "MyOutput")`
   logs every line sent to the output service at info level, under the tag.
+- **See what a key really sends**, in a debuggable build: `adb logcat -s BrailleSenseKeys` has each
+  chord the input service hands over as it came (its code, value and data, and whether it was
+  taken), what `Chords` made of it, and each key event the window got.
 
 [docs/DEVICE.md](docs/DEVICE.md) holds what the device does that an app has to know: its keys, its
 Global Options and how it reads a control.

@@ -41,14 +41,18 @@ public object Chords {
     public const val F4: Int = 0x00200000
     private const val FUNCTION_KEYS = F1 or F2 or F3 or F4
 
-    /** The scroll keys beside the display, and the codes of holding one down. */
-    public const val SCROLL_UP: Int = 0x00400000
-    /** The scroll key down. */
-    public const val SCROLL_DOWN: Int = 0x00800000
-    /** Holding the scroll key up. */
-    public const val SCROLL_UP_LONG: Int = 0x01000000
-    /** Holding the scroll key down. */
-    public const val SCROLL_DOWN_LONG: Int = 0x02000000
+    /**
+     * The scroll keys, a pair at each end of the display, each its own code, as read from the device
+     * pressing each: the upper key of either pair pans back (up), the lower pans on (down), as the
+     * device's own apps have them.
+     */
+    public const val SCROLL_LEFT_UP: Int = 0x00400000
+    /** The right pair's upper scroll key: pans back. */
+    public const val SCROLL_RIGHT_UP: Int = 0x00800000
+    /** The left pair's lower scroll key: pans on. */
+    public const val SCROLL_LEFT_DOWN: Int = 0x01000000
+    /** The right pair's lower scroll key: pans on. */
+    public const val SCROLL_RIGHT_DOWN: Int = 0x02000000
 
     /** Routing keys, as key codes: the first over cell 0. The second range is other models'. */
     public const val ROUTE_FIRST: Int = 272
@@ -173,8 +177,8 @@ public object Chords {
         if (chord in ROUTE_FIRST..ROUTE_LAST) return Key.Route(chord - ROUTE_FIRST)
         if (chord in ROUTE_FIRST_LARGE..ROUTE_LAST_LARGE) return Key.Route(chord - ROUTE_FIRST_LARGE)
         if (chord and FUNCTION_KEYS != 0) return functionKeys(chord)
-        if (chord == SCROLL_UP || chord == SCROLL_UP_LONG) return Key.ScrollBack
-        if (chord == SCROLL_DOWN || chord == SCROLL_DOWN_LONG) return Key.ScrollOn
+        if (chord == SCROLL_LEFT_UP || chord == SCROLL_RIGHT_UP) return Key.ScrollBack
+        if (chord == SCROLL_LEFT_DOWN || chord == SCROLL_RIGHT_DOWN) return Key.ScrollOn
         val spaced = chord and SPACE != 0
         val enter = chord and ENTER != 0
         val backspace = chord and BACKSPACE != 0

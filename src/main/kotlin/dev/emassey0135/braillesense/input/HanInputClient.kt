@@ -8,6 +8,9 @@ import dev.emassey0135.braillesense.han.IHanBrailleInputServiceCallback
 
 private const val TAG = "BrailleSenseInput"
 
+/** The log tag each key is logged under in a debuggable build: `adb logcat -s BrailleSenseKeys`. */
+public const val KEY_TAG: String = "BrailleSenseKeys"
+
 /**
  * The braille keys, through the `han_brailleinput` system service: its callback, registered while
  * the app is in front and released as it leaves, the way the device's own apps take it. The
@@ -26,10 +29,17 @@ public class HanInputClient(private val context: Context, private val keys: (Int
     /** Whether the keys are ours: only between [claim] and [release]. */
     @Volatile private var claimed = false
 
+    /** Whether each chord the service hands over is logged as it came: in a debuggable build only, for finding what a key really sends. */
+    private val logsKeys = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+
     private val callback = object : IHanBrailleInputServiceCallback.Stub() {
         // A chord that arrives after the app left is the device's: answering "taken" here is what
         // would leave the person with a keyboard that does nothing.
-        override fun onResponse(code: Int, value: Int, data: String?): Boolean = claimed && keys(code, value, data)
+        override fun onResponse(code: Int, value: Int, data: String?): Boolean {
+            val taken = claimed && keys(code, value, data)
+            if (logsKeys) Log.i(KEY_TAG, "chord code=$code value=0x${Integer.toHexString(value)} data=$data taken=$taken")
+            return taken
+        }
     }
 
     /** Takes the keys; does nothing if they are held already. */
