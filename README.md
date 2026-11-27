@@ -19,6 +19,10 @@ device's sake (see [Beside the Orbit SDK](#beside-the-orbit-sdk)).
   such a package, by its name alone, and the launcher lists such apps in its Programs menu. Under
   any other name an app gets no braille keys.
 - **Android 15, arm64**: every BrailleSense 7. The library's `minSdk` is 28.
+- **One APK for every display.** The SDK measures how many cells the display has as it takes the
+  output (a long line wrapped by the device's service and its lines counted, `BrailleDisplay.cellsWide`)
+  and pans to fit, so nothing is built per model; until the service answers it lays out 40. Measured
+  on a 40-cell unit; a 32-cell (H732B) or 20-cell one is still to be tried.
 - **The Android NDK**, to build liblouis. The library's `build-louis.sh` downloads liblouis' release,
   checks its hash and builds `libbraillesense-louis.so` with the NDK's clang, and gathers its tables
   into the library's assets; Gradle runs it before each build, and your APK merges both. It finds
