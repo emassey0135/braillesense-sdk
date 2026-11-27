@@ -56,8 +56,10 @@ for a developer without a device on the desk, and for anyone working below the s
   find, Space-D delete, Space-7-8 silence speech.
 - **The four keys long read as scroll keys are function keys**: F1 to F4. F2 is the menu, F3 Tab, F4
   Escape, F1 with F2 Page Up, F3 with F4 Page Down, Space-F3 Shift-Tab. F1 by itself, F1 with F4,
-  F2 with F3, and either with a letter belong to the system. The real scroll keys are separate, and
-  have a held form each.
+  F2 with F3, and either with a letter belong to the system. The real scroll keys are separate: a
+  pair at each end of the display, each of the four its own code (left upper `0x400000`, left lower
+  `0x1000000`, right upper `0x800000`, right lower `0x2000000`, read from the device as each was
+  pressed). Either pair's upper key pans up, its lower down, as the device's own apps have them.
 - **Tab is Space-4-5 or F3, Shift-Tab Space-1-2 or Space-F3.** In a dialog they are all that move
   between controls: the dialog swallows the arrows, so Space-1 and Space-4 move only within a control
   that is a list.
