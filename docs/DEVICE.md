@@ -154,8 +154,8 @@ which `BrailleSettings` does as the app comes to the front and as the provider s
   name), `current_type` and `title` are extras. It answers with a path alone, the first of
   `path_list` or `path`, so the device's apps read and write what is chosen through all-files access.
   The SDK's `FilePicker` asks it as they do.
-- This was read from the built-in apps, not yet tried from another app: whether the picker is
-  exported to one is still to be seen on a device.
+- **The picker answers another app**: Lumenna, choosing a backup folder through `FilePicker`, has
+  had the File Manager open and the folder come back.
 
 ## Notifications and alarms
 
