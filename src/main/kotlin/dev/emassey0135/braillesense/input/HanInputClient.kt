@@ -37,7 +37,7 @@ public class HanInputClient(private val context: Context, private val keys: (Int
         // would leave the person with a keyboard that does nothing.
         override fun onResponse(code: Int, value: Int, data: String?): Boolean {
             val taken = claimed && keys(code, value, data)
-            if (logsKeys) Log.d(KEY_TAG, "chord code=$code value=0x${Integer.toHexString(value)} data=$data taken=$taken")
+            if (logsKeys) Log.i(KEY_TAG, "chord code=$code value=0x${Integer.toHexString(value)} data=$data taken=$taken")
             return taken
         }
     }

@@ -107,7 +107,7 @@ public class BrailleSenseSession(
 
     private val input = HanInputClient(context) { code, value, data ->
         val key = Chords.decode(code, value, data, settings.eightDot, settings.doubleTapRoutes)
-        if (logsKeys) android.util.Log.d(dev.emassey0135.braillesense.input.KEY_TAG, "decoded $key")
+        if (logsKeys) android.util.Log.i(dev.emassey0135.braillesense.input.KEY_TAG, "decoded $key")
         keys.deliver(key)
     }
 
@@ -163,7 +163,7 @@ public class BrailleSenseSession(
      * swallowed. False for what the activity should hand to `super`.
      */
     public fun keyEvent(event: KeyEvent): Boolean {
-        if (logsKeys) android.util.Log.d(dev.emassey0135.braillesense.input.KEY_TAG, "key event code=${event.keyCode} scan=${event.scanCode} device=${event.deviceId} action=${event.action} repeat=${event.repeatCount}")
+        if (logsKeys) android.util.Log.i(dev.emassey0135.braillesense.input.KEY_TAG, "key event code=${event.keyCode} scan=${event.scanCode} device=${event.deviceId} action=${event.action} repeat=${event.repeatCount}")
         if (!claim.holding) return false
         if (event.deviceId == -1 && event.scanCode != 0) return true
         val key = when (event.action) {
