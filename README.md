@@ -215,6 +215,33 @@ FilePicker.launch(FileRequest(PickKind.OPEN_FILE, title = "Open", extensions = l
   (`MANAGE_EXTERNAL_STORAGE`, which the device's own apps hold; the person allows it under Settings,
   Apps, Special app access). An app that opens files the person brought to the device needs it.
 
+## Coming to the front
+
+A notification on this device only sounds and vibrates: it is read once the person opens the
+notification list. The Schedule Manager rings by opening itself over whatever is shown, and
+`Foreground` (`dev.emassey0135.braillesense.session`) does the same for an app's own activity, for
+what cannot wait until the person next opens the app, such as a reminder going off:
+
+```kotlin
+// As the reminder goes off, beside its notification:
+if (!Foreground.open(context, MainActivity::class.java, mapOf("reminder" to id))) {
+    // Not allowed: the notification is all the person gets until they allow it.
+}
+```
+
+- **`allowed(context)`** is whether the app may come to the front: Android starts no activity for an
+  app in the background unless it may display over other apps (`SYSTEM_ALERT_WINDOW`, which the
+  Schedule Manager holds). The SDK declares the permission; the person allows it on Android's
+  "Display over other apps" page, which **`settings(context)`** opens. No root is needed.
+- **`open(context, activity, extras)`** wakes the device and starts the activity in front, `extras`
+  its intent's string extras (a `singleTask` activity already running gets them in `onNewIntent`);
+  false where it is not allowed.
+- **`wake(context)`** wakes the device for a moment, from its deeper sleep too, and lets it sleep
+  again by its own timeout.
+
+Say what comes to the front as the device's own dialogs are (`DialogFrame`), its buttons with their
+letters, and let it ring no more than its notification did.
+
 ## Below the stack
 
 An app can work the frames and the display itself:
